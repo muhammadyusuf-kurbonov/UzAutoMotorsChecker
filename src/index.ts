@@ -1,5 +1,6 @@
 import fs from "fs";
 import CheckRunner from "./runner";
+import arg from 'arg';
 
 const lockFile = "checker.lock";
 
@@ -8,15 +9,15 @@ if (fs.existsSync(lockFile)) {
   process.exit();
 }
 
-async function main() {
+async function main(interval: number = 10_000, timeout = 15_000) {
   fs.writeFileSync(lockFile, "");
 
   const runner = new CheckRunner();
 
   while (true) {
-    await runner.runWorkflow();
+    await runner.runWorkflow(timeout);
 
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
 }
 
@@ -40,4 +41,30 @@ process.on("SIGUSR2", exitHandler.bind(null));
 // catches uncaught exceptions
 process.on("uncaughtException", exitHandler.bind(null));
 
-main();
+const args = arg({
+  '--interval': Number,
+  '--timeout': Number,
+
+  '--help': Boolean
+});
+
+if (args["--help"]) {
+  console.log(`
+  
+  This app checks for models of UzAutoMotors from its website
+  
+  Syntax:
+  checker [--interval 10000 | --timeout 15000]
+
+  Arguments:
+  interval - millisecods between checks
+
+  timeout - milliseconds to wait before connection established.
+  `);
+  process.exit(0);
+}
+
+main(
+  args["--interval"],
+  args["--timeout"]
+);

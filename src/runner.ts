@@ -53,7 +53,7 @@ export default class CheckRunner {
     return response?.status === 200;
   }
 
-  async runWorkflow() {
+  async runWorkflow(timeout: number = 15_000) {
     console.log("Processing...");
     let failed = false;
     const response = await axios
@@ -64,7 +64,7 @@ export default class CheckRunner {
           is_web: "Y",
         },
         {
-          timeout: 15000,
+          timeout,
           headers: {
             Cookie: "lang=ru; JSESSIONID=50ADF0A7A8B67D7423F2340D54B02C71",
             Filial_id: 100,
