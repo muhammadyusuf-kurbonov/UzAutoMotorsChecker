@@ -4,7 +4,33 @@ import arg from 'arg';
 
 const lockFile = "checker.lock";
 
-if (fs.existsSync(lockFile)) {
+const args = arg({
+  "--interval": Number,
+  "--timeout": Number,
+
+  "--help": Boolean,
+  "--ignore-lock": Boolean,
+});
+
+if (args["--help"]) {
+  console.log(`
+  
+  This app checks for models of UzAutoMotors from its website
+  
+  Syntax:
+  checker [--interval 10000 | --timeout 15000 | --ignore-lock]
+
+  Arguments:
+  interval - millisecods between checks
+
+  timeout - milliseconds to wait before connection established.
+
+  ignore-lock - ignore lock file.
+  `);
+  process.exit(0);
+}
+
+if (!args["--ignore-lock"] && fs.existsSync(lockFile)) {
   console.log("Checker is already running...");
   process.exit();
 }
@@ -40,29 +66,6 @@ process.on("SIGUSR2", exitHandler.bind(null));
 
 // catches uncaught exceptions
 process.on("uncaughtException", exitHandler.bind(null));
-
-const args = arg({
-  '--interval': Number,
-  '--timeout': Number,
-
-  '--help': Boolean
-});
-
-if (args["--help"]) {
-  console.log(`
-  
-  This app checks for models of UzAutoMotors from its website
-  
-  Syntax:
-  checker [--interval 10000 | --timeout 15000]
-
-  Arguments:
-  interval - millisecods between checks
-
-  timeout - milliseconds to wait before connection established.
-  `);
-  process.exit(0);
-}
 
 main(
   args["--interval"],
